@@ -5,8 +5,6 @@
 #include "main.h"
 #include "level.c"
 
-unsigned char speedPowerupTiles[2] = {2, 3}; // speed power up tile index in tileset
-unsigned char speedPowerupAnimation = 0;     // 0: first animation; 1: second animation
 unsigned char frameCounter = 0;              // keep track of frame number (e.g. for animation)
 
 // DRAW ROUTINES

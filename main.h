@@ -28,9 +28,6 @@ unsigned char exitPosTile[2];  // exit position in tiles
 unsigned char step;            // 0 to 7 (counts how many steps the player has taken within a tile)
 unsigned int powerupCounter;   // TODO: for simplicity, we keep only one common counter for all powerups.
                                // In the future, each powerup will have its own counter
-unsigned char speedPowerupPos[2];
-unsigned char speedPowerupTiles[2];  // speed power up tile index in tileset
-unsigned char speedPowerupAnimation; // 0: first animation; 1: second animation
 unsigned char frameCounter;          // keep track of frame number (e.g. for animation)
 enum Direction
 {
