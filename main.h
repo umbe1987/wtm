@@ -16,16 +16,18 @@
 #define PLAYERHEIGHT 8
 #define PLAYERWIDTH 8
 #define MAXSTEPS 8
-#define MAX_SPEED_POWERUP 800   // duration of speed powerup in frames
+#define MAX_POWERUP_COUNTER 800 // duration of powerup in frames
 #define TILE_ANIMATION_FRAME 16 // number of frames before changing tile for animation
 #define MAX_MONSTERS 10         // allowed maximum number of monsters per level
+#define MAX_POWERUPS 10         // allowed maximum number of powerups per level
 
 unsigned int ks;
-unsigned char exit;        // 0: exit was reached; 1: exit was not reached yet
+unsigned char exit;            // 0: exit was reached; 1: exit was not reached yet
 unsigned char exitPosPixel[2]; // exit position in px
 unsigned char exitPosTile[2];  // exit position in tiles
 unsigned char step;            // 0 to 7 (counts how many steps the player has taken within a tile)
-unsigned int speedPowerupCounter;
+unsigned int powerupCounter;   // TODO: for simplicity, we keep only one common counter for all powerups.
+                               // In the future, each powerup will have its own counter
 unsigned char speedPowerupPos[2];
 unsigned char speedPowerupTiles[2];  // speed power up tile index in tileset
 unsigned char speedPowerupAnimation; // 0: first animation; 1: second animation
@@ -47,6 +49,20 @@ enum LevelObject
     POWERUP_FLY = 0x03,
     POWERUP_REVERSE = 0x04
 };
+// struct for power-ups
+struct PowerUp
+{
+    enum LevelObject type;   // type of power up
+    unsigned int ix;         // power up level index
+    unsigned char x;         // x coord of powerup (in tile)
+    unsigned char y;         // y coord of powerup (in tile)
+    unsigned char counter;   // powerup frame counter (max is MAX_POWERUP_COUNTER)
+    unsigned char tiles[2];  // index of powerup in the tileset
+    unsigned char animation; // 0: first animation; 1: second animation
+    unsigned char taken;     // 0: not taken; 1: taken (to remove it from the level)
+};
+struct PowerUp powerups[MAX_POWERUPS]; // global array that will store the powerups for a level
+unsigned char activePowerUps;          // keep track of the number of powerups for the current level
 // list of enemy names
 enum MonsterName
 {
@@ -69,12 +85,12 @@ unsigned char activeMonsters;          // keep track of the number of monsters f
 struct Player
 {
     enum Direction dir;
-    unsigned char speed;     // MUST BE A FACTOR OF 8! (e.g. 1,2,4,8)
-    unsigned char pos[2];    // x and y coordinates (in px)
-    unsigned char sprite;    // used to animate the monster between two sprites (either 0 or 1)
-    unsigned char isMoving;  // 0: not-moving; 1: moving
-    unsigned char step;      // 0 to 7 (counts how many steps the player has taken within a tile)
-    unsigned char spedUp;    // affected by speed powerup (1: sped up; 0: normal speed)
+    unsigned char speed;    // MUST BE A FACTOR OF 8! (e.g. 1,2,4,8)
+    unsigned char pos[2];   // x and y coordinates (in px)
+    unsigned char sprite;   // used to animate the monster between two sprites (either 0 or 1)
+    unsigned char isMoving; // 0: not-moving; 1: moving
+    unsigned char step;     // 0 to 7 (counts how many steps the player has taken within a tile)
+    unsigned char spedUp;   // affected by speed powerup (1: sped up; 0: normal speed)
 };
 struct Player player;
 
@@ -82,7 +98,7 @@ enum Direction dir; // check player next direction for collision detection
 
 // store level copies to allow for changes (since banks store them as const)
 // this is needed for (e.g.) overwrite a powerup tile with a terrain tile after the powerup is taken
-unsigned char levelCopy[LEVEL_SIZE];
+enum LevelObject levelCopy[LEVEL_SIZE];
 
 // DRAW ROUTINES
 void drawPlayer(void);
@@ -99,7 +115,7 @@ void moveMonster(struct Monster *monster);
 
 // COLLISION ROUTINES
 unsigned char monsterCollision(void);
-enum LevelObject levelCollision(enum Direction dir);
+unsigned int nextMove(enum Direction dir);
 enum Direction getDirection(void);
 
 #endif

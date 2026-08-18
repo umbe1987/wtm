@@ -171,9 +171,8 @@ unsigned char monsterCollision(void)
     return 0; // no collision
 }
 
-// Check collidables in a given direction
-// return level object codes (see enum LevelObject)
-enum LevelObject levelCollision(enum Direction dir)
+// return the index of the next tile in a given direction
+unsigned int nextMove(enum Direction dir)
 {
     // player index in tile coordinates
     unsigned char x = player.pos[0] / 8;
@@ -182,21 +181,21 @@ enum LevelObject levelCollision(enum Direction dir)
     unsigned int ix = x + y * 32;
     if (dir == UP)
     {
-        return levelCopy[ix - 32];
+        return ix - 32;
     }
     if (dir == DOWN)
     {
-        return levelCopy[ix + 32];
+        return ix + 32;
     }
     if (dir == LEFT)
     {
-        return levelCopy[ix - 1];
+        return ix - 1;
     }
     if (dir == RIGHT)
     {
-        return levelCopy[ix + 1];
+        return ix + 1;
     }
-    return WALL; // in case direction is UNKNOW, return code is same as wall
+    return ix; // in case direction is UNKNOW
 }
 
 enum Direction getDirection(void)

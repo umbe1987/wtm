@@ -51,28 +51,75 @@ void deathLoop(void)
     }
 }
 
+void getPowerups(struct PowerUp *pu)
+{
+    activePowerUps = 0; // reset number of powerups using a global variable
+    for (unsigned int i = 0; i < LEVEL_SIZE; i++)
+    {
+        if (levelCopy[i] > 0x01)
+        {
+            pu[activePowerUps].type = levelCopy[i]; // set type of powerup
+            pu[activePowerUps].ix = i;              // store index of powerup in level
+            pu[activePowerUps].x = i % 32;          // powerup x coord (in tile)
+            pu[activePowerUps].y = i / 32;          // powerup y coord (in tile)
+            pu[activePowerUps].counter = 0;
+            // power up tile index in tileset
+            pu[activePowerUps].tiles[0] = 2;
+            pu[activePowerUps].tiles[1] = 3;
+            pu[activePowerUps].animation = 0; // 0: first animation; 1: second animation
+            pu[activePowerUps].taken = 0;     // 0: not taken; 1: taken (to remove it from the level)
+            activePowerUps++;                 // increment powerup counter
+        }
+    }
+}
+
+// used to remove the powerup from the level if the player takes it
+void removePowerup(void)
+{
+    // get next player position index (in tile)
+    unsigned int ix = nextMove(player.dir);
+    // translate into xy coords
+    unsigned int x = ix % 32;
+    unsigned int y = ix / 32;
+    // extract the power up the player is on, and set it to taken
+    for (unsigned char i = 0; i < activePowerUps; i++)
+    {
+        // if the index of the powerup corresponds to the player index
+        if (powerups[i].ix == ix)
+        {
+            // remove it from the level
+            SMS_setTileatXY(x, y, TERRAIN); // visually...
+            levelCopy[ix] = TERRAIN;        // ...and as level object
+            powerups[i].taken = 1;          // set it to taken
+        }
+    }
+}
+
 void levelLoop(void (*initLevel)(void))
 {
     PSGPlay(wtm_psg);
     initLevel();
-    unsigned char collisionCode;
+    enum LevelObject collisionCode = UNKNOWN;
     while (!exit)
     {
         frameCounter++;
-        // tile animation happens every N frames
-        if ((levelCopy[speedPowerupPos[0] + speedPowerupPos[1] * 32] == POWERUP_SPEED) && (frameCounter % TILE_ANIMATION_FRAME == 0))
+        // tile animation for powerups
+        for (unsigned char i = 0; i < activePowerUps; i++)
         {
-            // speed power up
-            speedPowerupAnimation = !speedPowerupAnimation;
-            SMS_setTileatXY(speedPowerupPos[0], speedPowerupPos[1], speedPowerupTiles[speedPowerupAnimation] | TILE_USE_SPRITE_PALETTE);
+            if ((frameCounter % TILE_ANIMATION_FRAME == 0) && (!powerups[i].taken))
+            {
+                powerups[i].animation = !powerups[i].animation; // 0 -> 1 -> 0 -> ...
+                // use sprite palette
+                SMS_setTileatXY(powerups[i].x, powerups[i].y, powerups[i].tiles[powerups[i].animation] | TILE_USE_SPRITE_PALETTE);
+            }
         }
         ks = SMS_getKeysStatus();
         // if player is NOT moving
         if (player.isMoving == 0)
         {
-            // if so, check the collision against walls in that direction
+            // check the collision against walls in given direction
             dir = getDirection();
-            collisionCode = levelCollision(dir);
+            collisionCode = levelCopy[nextMove(dir)];
             if ((dir != UNKNOWN) && (collisionCode != WALL))
             {
                 // if there's no wall, set player as MOVING
@@ -82,25 +129,25 @@ void levelLoop(void (*initLevel)(void))
                 // increase the speed in case of speed powerup
                 if (collisionCode == POWERUP_SPEED)
                 {
-                    player.speed = 2;  // set speed to 2
-                    player.spedUp = 1; // set player status to sped up
-                    // remove power-up from level (substitute it with terrain tile)
-                    SMS_setTileatXY(speedPowerupPos[0], speedPowerupPos[1], 1);
-                    levelCopy[speedPowerupPos[0] + speedPowerupPos[1] * 32] = TERRAIN;
+                    powerupCounter = 0; // reset powerup frame counter
+                    player.speed = 2;   // set speed to 2
+                    player.spedUp = 1;  // set player status to sped up
+                    // remove powerup from level (substitute it with terrain tile)
+                    removePowerup();
                 }
             }
         }
         // if player is sped up
-        if ((player.spedUp) && (speedPowerupCounter < MAX_SPEED_POWERUP))
+        if ((player.spedUp) && (powerupCounter < MAX_POWERUP_COUNTER))
         {
-            speedPowerupCounter++; // increase the speed frame counter
-            PSGFrame();            // play another frame of music (to speed the music up)
+            powerupCounter++; // increase the speed frame counter
+            PSGFrame();       // play another frame of music (to speed the music up)
         }
         else
         {
-            speedPowerupCounter = 0; // reset speed powerup frame counter
-            player.speed = 1;         // reset player speed
-            player.spedUp = 0;        // set player status to normal
+            powerupCounter = 0; // reset powerup frame counter
+            player.speed = 1;   // reset player speed
+            player.spedUp = 0;  // set player status to normal
         }
         // if player is MOVING
         if (player.isMoving == 1)
@@ -122,7 +169,7 @@ void levelLoop(void (*initLevel)(void))
         SMS_initSprites();
         drawPlayer();
         // draw and move the monsters
-        for (size_t i = 0; i < activeMonsters; i++)
+        for (unsigned char i = 0; i < activeMonsters; i++)
         {
             drawMonster(&monsters[i]);
             moveMonster(&monsters[i]);
@@ -192,17 +239,14 @@ void level1(void)
     monsters[3].limits[0] = 160; // xmin limit
     monsters[3].limits[1] = 200; // xmax limit
 
-    speedPowerupPos[0] = 30;
-    speedPowerupPos[1] = 3;
-    // set the power-up tile to use the sprite palette
-    SMS_setTileatXY(speedPowerupPos[0], speedPowerupPos[1], speedPowerupTiles[speedPowerupAnimation] | TILE_USE_SPRITE_PALETTE);
-    speedPowerupCounter = 0; // frame counter for the speed powerup
-    // all sprite coordinates must refer to the top-left pixel within a tile
-    
+    // powerup array
+    getPowerups(powerups);
+    powerupCounter = 0; // frame counter for the speed powerup
+
     // main character
-    player.speed = 1;   // MUST BE A FACTOR OF 8! (e.g. 1,2,4,8)
+    player.speed = 1; // MUST BE A FACTOR OF 8! (e.g. 1,2,4,8)
     player.sprite = 0;
-    player.spedUp = 0;  // affected by speed powerup (1: sped up; 0: normal speed)
+    player.spedUp = 0; // affected by speed powerup (1: sped up; 0: normal speed)
     player.pos[0] = 8;
     player.pos[1] = 8;
 
@@ -234,13 +278,14 @@ void level2(void)
     monsters[0].limits[0] = 8;   // xmin limit
     monsters[0].limits[1] = 216; // xmax limit
 
-    speedPowerupCounter = 0; // frame counter for the speed powerup
-    // all sprite coordinates must refer to the top-left pixel within a tile
-    
+    // powerup array
+    getPowerups(powerups);
+    powerupCounter = 0; // frame counter for the speed powerup
+
     // main character
-    player.speed = 1;   // MUST BE A FACTOR OF 8! (e.g. 1,2,4,8)
+    player.speed = 1; // MUST BE A FACTOR OF 8! (e.g. 1,2,4,8)
     player.sprite = 0;
-    player.spedUp = 0;  // affected by speed powerup (1: sped up; 0: normal speed)
+    player.spedUp = 0; // affected by speed powerup (1: sped up; 0: normal speed)
     player.pos[0] = 8;
     player.pos[1] = 8;
 
