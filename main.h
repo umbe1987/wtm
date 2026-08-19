@@ -6,6 +6,7 @@
 #define LEVEL_SIZE 768 // in tiles
 #define PLAYER_TILES SPRITE_TILES
 #define EXIT_TILES (SPRITE_TILES + 2)
+#define FLY_TILES (SPRITE_TILES + 3)
 #define REXY_TILES_LEFT (SPRITE_TILES + 4)
 #define REXY_TILES_RIGHT (SPRITE_TILES + 6)
 #define POCCO_TILES (SPRITE_TILES + 8)
@@ -88,6 +89,7 @@ struct Player
     unsigned char isMoving; // 0: not-moving; 1: moving
     unsigned char step;     // 0 to 7 (counts how many steps the player has taken within a tile)
     unsigned char spedUp;   // affected by speed powerup (1: sped up; 0: normal speed)
+    unsigned char canFly;   // affected by fly powerup (1: can fly; 0: cannot)
 };
 struct Player player;
 

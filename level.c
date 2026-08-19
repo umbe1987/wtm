@@ -95,6 +95,34 @@ void removePowerup(void)
     }
 }
 
+// react to powerup according to their code
+void managePowerup(enum LevelObject code)
+{
+    switch (code)
+    {
+    // increase the speed in case of speed powerup
+    case POWERUP_SPEED:
+        player.speed = 2;  // set speed to 2
+        player.spedUp = 1; // set player status to sped up
+        break;
+
+    case POWERUP_FLY:
+        player.canFly = 1; // set player status to can fly
+        break;
+
+    case POWERUP_REVERSE:
+        /* code */
+        break;
+
+    default:
+        return; // return in case of non-powerup
+    }
+    powerupCounter = 1; // start powerup frame counter (0 means inactive, so we start from 1)
+    removePowerup();    // remove powerup from level (substitute it with terrain tile)
+
+    return;
+}
+
 void levelLoop(void (*initLevel)(void))
 {
     PSGPlay(wtm_psg);
@@ -126,28 +154,14 @@ void levelLoop(void (*initLevel)(void))
                 player.isMoving = 1;
                 // store the direction
                 player.dir = dir;
-                // increase the speed in case of speed powerup
-                if (collisionCode == POWERUP_SPEED)
-                {
-                    powerupCounter = 0; // reset powerup frame counter
-                    player.speed = 2;   // set speed to 2
-                    player.spedUp = 1;  // set player status to sped up
-                    // remove powerup from level (substitute it with terrain tile)
-                    removePowerup();
-                }
+                // handle powerups
+                managePowerup(collisionCode);
             }
         }
         // if player is sped up
-        if ((player.spedUp) && (powerupCounter < MAX_POWERUP_COUNTER))
+        if (player.spedUp)
         {
-            powerupCounter++; // increase the speed frame counter
             PSGFrame();       // play another frame of music (to speed the music up)
-        }
-        else
-        {
-            powerupCounter = 0; // reset powerup frame counter
-            player.speed = 1;   // reset player speed
-            player.spedUp = 0;  // set player status to normal
         }
         // if player is MOVING
         if (player.isMoving == 1)
@@ -167,6 +181,27 @@ void levelLoop(void (*initLevel)(void))
             player.sprite = !player.sprite;
         }
         SMS_initSprites();
+        // if player can fly
+        if ((player.canFly) && (powerupCounter < MAX_POWERUP_COUNTER))
+        {
+            if (powerupCounter % 4 == 0)
+            {
+                // overwrite sprite player with fly sprite each n frames to make it look like it's blinking
+                SMS_addSprite(player.pos[0], player.pos[1], FLY_TILES);
+            }
+        }
+        if (powerupCounter > 0)
+        {
+            powerupCounter++; // increase the speed frame counter
+        }
+        // cancel powerup effects if the counter reached the maximum
+        if (powerupCounter >= MAX_POWERUP_COUNTER)
+        {
+            powerupCounter = 0; // reset powerup frame counter
+            player.speed = 1;   // reset player speed
+            player.spedUp = 0;  // set player status to normal
+            player.canFly= 0;   // player cannot fly anymore
+        }
         drawPlayer();
         // draw and move the monsters
         for (unsigned char i = 0; i < activeMonsters; i++)
@@ -249,6 +284,7 @@ void level1(void)
     player.spedUp = 0; // affected by speed powerup (1: sped up; 0: normal speed)
     player.pos[0] = 8;
     player.pos[1] = 8;
+    player.canFly = 0; // affected by fly powerup (1: can fly; 0: cannot)
 
     // exit door
     exitPosPixel[0] = 240;                // position in px
