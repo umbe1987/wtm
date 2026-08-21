@@ -64,19 +64,19 @@ void drawMonster(struct Monster *monster)
 // MOVE ROUTINES
 void movePlayer(enum Direction dir)
 {
-    if (dir == UP)
+    if (dir == UP && player.pos[1] > MINPLAYERY)
     {
         player.pos[1] -= player.speed;
     }
-    if (dir == DOWN)
+    if (dir == DOWN && player.pos[1] < MAXPLAYERY)
     {
         player.pos[1] += player.speed;
     }
-    if (dir == LEFT)
+    if (dir == LEFT && player.pos[0] > MINPLAYERX)
     {
         player.pos[0] -= player.speed;
     }
-    if (dir == RIGHT)
+    if (dir == RIGHT && player.pos[0] < MAXPLAYERX)
     {
         player.pos[0] += player.speed;
     }

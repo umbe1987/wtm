@@ -148,7 +148,7 @@ void levelLoop(void (*initLevel)(void))
             // check the collision against walls in given direction
             dir = getDirection();
             collisionCode = levelCopy[nextMove(dir)];
-            if ((dir != UNKNOWN) && (collisionCode != WALL))
+            if ((dir != UNKNOWN && collisionCode != WALL) || player.canFly)
             {
                 // if there's no wall, set player as MOVING
                 player.isMoving = 1;
@@ -157,11 +157,6 @@ void levelLoop(void (*initLevel)(void))
                 // handle powerups
                 managePowerup(collisionCode);
             }
-        }
-        // if player is sped up
-        if (player.spedUp)
-        {
-            PSGFrame();       // play another frame of music (to speed the music up)
         }
         // if player is MOVING
         if (player.isMoving == 1)
@@ -181,8 +176,13 @@ void levelLoop(void (*initLevel)(void))
             player.sprite = !player.sprite;
         }
         SMS_initSprites();
+        // if player is sped up
+        if (player.spedUp)
+        {
+            PSGFrame();       // play another frame of music (to speed the music up)
+        }
         // if player can fly
-        if ((player.canFly) && (powerupCounter < MAX_POWERUP_COUNTER))
+        if (player.canFly)
         {
             if (powerupCounter % 4 == 0)
             {
@@ -218,7 +218,7 @@ void levelLoop(void (*initLevel)(void))
             endLevel();
             break;
         }
-        if (monsterCollision())
+        if (!player.canFly && monsterCollision())
         {
             deathLoop();
             levelLoop(initLevel);
@@ -324,6 +324,7 @@ void level2(void)
     player.spedUp = 0; // affected by speed powerup (1: sped up; 0: normal speed)
     player.pos[0] = 8;
     player.pos[1] = 8;
+    player.canFly = 0; // affected by fly powerup (1: can fly; 0: cannot)
 
     // exit door
     exitPosPixel[0] = 240;                // position in px
