@@ -5,7 +5,7 @@
 #include "main.h"
 #include "level.c"
 
-unsigned char frameCounter = 0;              // keep track of frame number (e.g. for animation)
+unsigned char frameCounter = 0; // keep track of frame number (e.g. for animation)
 
 // DRAW ROUTINES
 void drawPlayer(void)
@@ -220,7 +220,6 @@ enum Direction getDirection(void)
 // MISC
 void loadAssets(void)
 {
-    SMS_loadBGPalette(maze__palette__bin);
     SMS_loadTiles(sprites__tiles__bin, SPRITE_TILES, sprites__tiles__bin_size);
     SMS_loadSpritePalette(sprites__palette__bin);
 }

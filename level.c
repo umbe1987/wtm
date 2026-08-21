@@ -73,6 +73,15 @@ void getPowerups(struct PowerUp *pu)
     }
 }
 
+// reset all power up effects from the player
+void resetPowerup(void)
+{
+    powerupCounter = 0; // reset powerup frame counter
+    player.speed = 1;   // reset player speed
+    player.spedUp = 0;  // set player status to normal
+    player.canFly = 0;  // player cannot fly anymore
+}
+
 // used to remove the powerup from the level if the player takes it
 void removePowerup(void)
 {
@@ -179,7 +188,7 @@ void levelLoop(void (*initLevel)(void))
         // if player is sped up
         if (player.spedUp)
         {
-            PSGFrame();       // play another frame of music (to speed the music up)
+            PSGFrame(); // play another frame of music (to speed the music up)
         }
         // if player can fly
         if (player.canFly)
@@ -197,10 +206,7 @@ void levelLoop(void (*initLevel)(void))
         // cancel powerup effects if the counter reached the maximum
         if (powerupCounter >= MAX_POWERUP_COUNTER)
         {
-            powerupCounter = 0; // reset powerup frame counter
-            player.speed = 1;   // reset player speed
-            player.spedUp = 0;  // set player status to normal
-            player.canFly= 0;   // player cannot fly anymore
+            resetPowerup();
         }
         drawPlayer();
         // draw and move the monsters
@@ -229,6 +235,11 @@ void levelLoop(void (*initLevel)(void))
 // LEVEL DEFINITIONS
 void level1(void)
 {
+    SMS_loadBGPalette(level1__palette__bin);
+    // IMPORTANT: set the first entry of the sprite palette to the first
+    //            entry of the BG palette, so that the power-up
+    //            has the right background color at each level
+    SMS_setSpritePaletteColor(0, level1__palette__bin[0]);
     SMS_loadTiles(level1__tiles__bin, BG_TILES, level1__tiles__bin_size);
     SMS_loadTileMap(0, 0, level1__tilemap__bin, level1__tilemap__bin_size);
 
@@ -295,6 +306,11 @@ void level1(void)
 
 void level2(void)
 {
+    SMS_loadBGPalette(level2__palette__bin);
+    // IMPORTANT: set the first entry of the sprite palette to the first
+    //            entry of the BG palette, so that the power-up
+    //            has the right background color at each level
+    SMS_setSpritePaletteColor(0, level2__palette__bin[0]);
     SMS_loadTiles(level2__tiles__bin, BG_TILES, level2__tiles__bin_size);
     SMS_loadTileMap(0, 0, level2__tilemap__bin, level2__tilemap__bin_size);
 
