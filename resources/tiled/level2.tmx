@@ -1,10 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="32" height="24" tilewidth="8" tileheight="8" infinite="0" nextlayerid="2" nextobjectid="1">
  <editorsettings>
-  <export format="csv"/>
+  <export target="../../assets/level2.csv" format="csv"/>
  </editorsettings>
- <tileset firstgid="1" name="level2_tileset" tilewidth="8" tileheight="8" tilecount="4" columns="4">
-  <image source="../graphics/level2/level2_tileset.png" width="32" height="8"/>
+ <tileset firstgid="1" name="level2_tileset" tilewidth="8" tileheight="8" tilecount="6" columns="6">
+  <image source="../graphics/level2/level2_tileset.png" width="48" height="8"/>
+  <tile id="0">
+   <properties>
+    <property name="name" type="int" value="0"/>
+   </properties>
+  </tile>
+  <tile id="1">
+   <properties>
+    <property name="name" type="int" value="1"/>
+   </properties>
+  </tile>
+  <tile id="2">
+   <properties>
+    <property name="name" type="int" value="2"/>
+   </properties>
+  </tile>
+  <tile id="3">
+   <properties>
+    <property name="name" type="int" value="2"/>
+   </properties>
+  </tile>
+  <tile id="4">
+   <properties>
+    <property name="name" type="int" value="3"/>
+   </properties>
+  </tile>
+  <tile id="5">
+   <properties>
+    <property name="name" type="int" value="3"/>
+   </properties>
+  </tile>
  </tileset>
  <layer id="1" name="Tile Layer 1" width="32" height="24">
   <data encoding="csv">

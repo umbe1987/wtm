@@ -29,7 +29,7 @@ unsigned char exitPosTile[2];  // exit position in tiles
 unsigned char step;            // 0 to 7 (counts how many steps the player has taken within a tile)
 unsigned int powerupCounter;   // TODO: for simplicity, we keep only one common counter for all powerups.
                                // In the future, each powerup will have its own counter
-unsigned char frameCounter;          // keep track of frame number (e.g. for animation)
+unsigned char frameCounter;    // keep track of frame number (e.g. for animation)
 enum Direction
 {
     UNKNOWN,
@@ -43,8 +43,8 @@ enum LevelObject
 {
     WALL = 0x00,
     TERRAIN = 0x01,
-    POWERUP_SPEED = 0x02,
-    POWERUP_FLY = 0x03,
+    POWERUP_FLY = 0x02,
+    POWERUP_SPEED = 0x03,
     POWERUP_REVERSE = 0x04
 };
 // struct for power-ups

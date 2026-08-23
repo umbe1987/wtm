@@ -51,12 +51,15 @@ void deathLoop(void)
     }
 }
 
+// REMEMBER! we can only have MAX_POWERUPS in a level
+// Trying to add more will have unexpected effects on screen
 void getPowerups(struct PowerUp *pu)
 {
     activePowerUps = 0; // reset number of powerups using a global variable
     for (unsigned int i = 0; i < LEVEL_SIZE; i++)
     {
-        if (levelCopy[i] > 0x01)
+        enum LevelObject id = levelCopy[i];
+        if (id > TERRAIN)
         {
             pu[activePowerUps].type = levelCopy[i]; // set type of powerup
             pu[activePowerUps].ix = i;              // store index of powerup in level
@@ -64,11 +67,27 @@ void getPowerups(struct PowerUp *pu)
             pu[activePowerUps].y = i / 32;          // powerup y coord (in tile)
             pu[activePowerUps].counter = 0;
             // power up tile index in tileset
-            pu[activePowerUps].tiles[0] = 2;
-            pu[activePowerUps].tiles[1] = 3;
+            switch (id)
+            {
+            case POWERUP_FLY:
+                pu[activePowerUps].tiles[0] = 2;
+                pu[activePowerUps].tiles[1] = 3;
+                break;
+
+            case POWERUP_SPEED:
+                pu[activePowerUps].tiles[0] = 4;
+                pu[activePowerUps].tiles[1] = 5;
+
+            default:
+                break;
+            }
             pu[activePowerUps].animation = 0; // 0: first animation; 1: second animation
             pu[activePowerUps].taken = 0;     // 0: not taken; 1: taken (to remove it from the level)
             activePowerUps++;                 // increment powerup counter
+            if (activePowerUps == MAX_POWERUPS)
+            {
+                return;
+            }
         }
     }
 }
@@ -147,7 +166,7 @@ void levelLoop(void (*initLevel)(void))
             {
                 powerups[i].animation = !powerups[i].animation; // 0 -> 1 -> 0 -> ...
                 // use sprite palette
-                SMS_setTileatXY(powerups[i].x, powerups[i].y, powerups[i].tiles[powerups[i].animation] | TILE_USE_SPRITE_PALETTE);
+                SMS_setTileatXY(powerups[i].x, powerups[i].y, powerups[i].tiles[powerups[i].animation]);
             }
         }
         ks = SMS_getKeysStatus();
@@ -236,10 +255,6 @@ void levelLoop(void (*initLevel)(void))
 void level1(void)
 {
     SMS_loadBGPalette(level1__palette__bin);
-    // IMPORTANT: set the first entry of the sprite palette to the first
-    //            entry of the BG palette, so that the power-up
-    //            has the right background color at each level
-    SMS_setSpritePaletteColor(0, level1__palette__bin[0]);
     SMS_loadTiles(level1__tiles__bin, BG_TILES, level1__tiles__bin_size);
     SMS_loadTileMap(0, 0, level1__tilemap__bin, level1__tilemap__bin_size);
 
@@ -307,15 +322,11 @@ void level1(void)
 void level2(void)
 {
     SMS_loadBGPalette(level2__palette__bin);
-    // IMPORTANT: set the first entry of the sprite palette to the first
-    //            entry of the BG palette, so that the power-up
-    //            has the right background color at each level
-    SMS_setSpritePaletteColor(0, level2__palette__bin[0]);
     SMS_loadTiles(level2__tiles__bin, BG_TILES, level2__tiles__bin_size);
     SMS_loadTileMap(0, 0, level2__tilemap__bin, level2__tilemap__bin_size);
 
     // copy level1 to levelCopy
-    memcpy(levelCopy, level1_objects, LEVEL_SIZE * sizeof(level1_objects[0]));
+    memcpy(levelCopy, level2_objects, LEVEL_SIZE * sizeof(level2_objects[0]));
 
     // monster array
     activeMonsters = 1;
