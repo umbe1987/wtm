@@ -23,9 +23,7 @@
 #define MAX_POWERUPS 10         // allowed maximum number of powerups per level
 
 unsigned int ks;
-unsigned char exit;            // 0: exit was reached; 1: exit was not reached yet
-unsigned char exitPosPixel[2]; // exit position in px
-unsigned char exitPosTile[2];  // exit position in tiles
+unsigned char end;            // 0: exit was reached; 1: exit was not reached yet
 unsigned char step;            // 0 to 7 (counts how many steps the player has taken within a tile)
 unsigned int powerupCounter;   // TODO: for simplicity, we keep only one common counter for all powerups.
                                // In the future, each powerup will have its own counter
@@ -43,9 +41,10 @@ enum LevelObject
 {
     WALL = 0x00,
     TERRAIN = 0x01,
-    POWERUP_FLY = 0x02,
-    POWERUP_SPEED = 0x03,
-    POWERUP_REVERSE = 0x04
+    EXIT = 0x02,
+    POWERUP_FLY = 0x03,
+    POWERUP_SPEED = 0x04,
+    POWERUP_REVERSE = 0x05
 };
 // struct for power-ups
 struct PowerUp
@@ -61,6 +60,15 @@ struct PowerUp
 };
 struct PowerUp powerups[MAX_POWERUPS]; // global array that will store the powerups for a level
 unsigned char activePowerUps;          // keep track of the number of powerups for the current level
+// struct for exit
+struct Exit
+{
+    unsigned char x;         // x coord of powerup (in tile)
+    unsigned char y;         // y coord of powerup (in tile)
+    unsigned char tiles[2];  // index of powerup in the tileset
+    unsigned char animation; // 0: first animation; 1: second animation
+};
+struct Exit exit;
 // list of enemy names
 enum MonsterName
 {
@@ -101,7 +109,6 @@ enum LevelObject levelCopy[LEVEL_SIZE];
 
 // DRAW ROUTINES
 void drawPlayer(void);
-void drawExit(void);
 void drawRexy(struct Monster *rexy);
 void drawPocco(struct Monster *pocco);
 void drawMonster(struct Monster *monster);

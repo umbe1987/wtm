@@ -13,11 +13,6 @@ void drawPlayer(void)
     SMS_addSprite(player.pos[0], player.pos[1], PLAYER_TILES + player.sprite);
 }
 
-void drawExit(void)
-{
-    SMS_addSprite(exitPosPixel[0], exitPosPixel[1], EXIT_TILES);
-}
-
 void drawRexy(struct Monster *rexy)
 {
     if (rexy->dir == RIGHT)
@@ -229,8 +224,8 @@ void main(void)
 {
     loadAssets();
     SMS_displayOn();
-    exit = 0; // reset exit
+    end = 0; // reset exit
     levelLoop(level1);
-    exit = 0; // reset exit
+    end = 0; // reset exit
     levelLoop(level2);
 }

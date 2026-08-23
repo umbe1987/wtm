@@ -18,7 +18,13 @@ void endLevel(void)
         else
         {
             PSGStop();
-            exit = 1;
+            // set player state to NOT MOVING
+            player.isMoving = 0;
+            // reset step
+            step = 0;
+            // reset player sprite
+            player.sprite = 0;
+            end = 1;
             break;
         }
     }
@@ -59,7 +65,7 @@ void getPowerups(struct PowerUp *pu)
     for (unsigned int i = 0; i < LEVEL_SIZE; i++)
     {
         enum LevelObject id = levelCopy[i];
-        if (id > TERRAIN)
+        if (id > EXIT)
         {
             pu[activePowerUps].type = levelCopy[i]; // set type of powerup
             pu[activePowerUps].ix = i;              // store index of powerup in level
@@ -156,7 +162,7 @@ void levelLoop(void (*initLevel)(void))
     PSGPlay(wtm_psg);
     initLevel();
     enum LevelObject collisionCode = UNKNOWN;
-    while (!exit)
+    while (!end)
     {
         frameCounter++;
         // tile animation for powerups
@@ -165,9 +171,14 @@ void levelLoop(void (*initLevel)(void))
             if ((frameCounter % TILE_ANIMATION_FRAME == 0) && (!powerups[i].taken))
             {
                 powerups[i].animation = !powerups[i].animation; // 0 -> 1 -> 0 -> ...
-                // use sprite palette
                 SMS_setTileatXY(powerups[i].x, powerups[i].y, powerups[i].tiles[powerups[i].animation]);
             }
+        }
+        // tile animation for exit
+        if (frameCounter % TILE_ANIMATION_FRAME == 0)
+        {
+            exit.animation = !exit.animation; // 0 -> 1 -> 0 -> ...
+            SMS_setTileatXY(exit.x, exit.y, exit.tiles[exit.animation]);
         }
         ks = SMS_getKeysStatus();
         // if player is NOT moving
@@ -184,6 +195,10 @@ void levelLoop(void (*initLevel)(void))
                 player.dir = dir;
                 // handle powerups
                 managePowerup(collisionCode);
+            }
+            if (collisionCode == EXIT)
+            {
+                endLevel();
             }
         }
         // if player is MOVING
@@ -234,15 +249,9 @@ void levelLoop(void (*initLevel)(void))
             drawMonster(&monsters[i]);
             moveMonster(&monsters[i]);
         }
-        drawExit();
         SMS_waitForVBlank();
         SMS_copySpritestoSAT();
         PSGFrame();
-        if ((player.pos[0] / 8 == exitPosTile[0]) & (player.pos[1] / 8 == exitPosTile[1]))
-        {
-            endLevel();
-            break;
-        }
         if (!player.canFly && monsterCollision())
         {
             deathLoop();
@@ -313,10 +322,11 @@ void level1(void)
     player.canFly = 0; // affected by fly powerup (1: can fly; 0: cannot)
 
     // exit door
-    exitPosPixel[0] = 240;                // position in px
-    exitPosPixel[1] = 176;                // position in px
-    exitPosTile[0] = exitPosPixel[0] / 8; // position in tile
-    exitPosTile[1] = exitPosPixel[1] / 8; // position in tile
+    exit.x = 30; // position in tile
+    exit.y = 22; // position in tile
+    exit.tiles[0] = 6;
+    exit.tiles[1] = 7;
+    exit.animation = 0; // 0: first animation; 1: second animation
 }
 
 void level2(void)
@@ -354,8 +364,9 @@ void level2(void)
     player.canFly = 0; // affected by fly powerup (1: can fly; 0: cannot)
 
     // exit door
-    exitPosPixel[0] = 240;                // position in px
-    exitPosPixel[1] = 176;                // position in px
-    exitPosTile[0] = exitPosPixel[0] / 8; // position in tile
-    exitPosTile[1] = exitPosPixel[1] / 8; // position in tile
+    exit.x = 30; // position in tile
+    exit.y = 22; // position in tile
+    exit.tiles[0] = 6;
+    exit.tiles[1] = 7;
+    exit.animation = 0; // 0: first animation; 1: second animation
 }
