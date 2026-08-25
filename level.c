@@ -281,6 +281,9 @@ void level1(void)
     monsters[0].pos[1] = 88;
     monsters[0].limits[0] = 8;   // xmin limit
     monsters[0].limits[1] = 216; // xmax limit
+    monsters[0].w = REXYWIDTH;
+    monsters[0].h = REXYHEIGHT;
+    getBBox(monsters[0].pos[0], monsters[0].pos[1], monsters[0].w, monsters[0].h, &monsters[0].bbox);
 
     monsters[1].name = POCCO;
     monsters[1].dir = RIGHT;
@@ -290,6 +293,9 @@ void level1(void)
     monsters[1].pos[1] = 144;
     monsters[1].limits[0] = 8;   // xmin limit
     monsters[1].limits[1] = 232; // xmax limit
+    monsters[1].w = POCCOWIDTH;
+    monsters[1].h = POCCOHEIGHT;
+    getBBox(monsters[1].pos[0], monsters[1].pos[1], monsters[1].w, monsters[1].h, &monsters[1].bbox);
 
     monsters[2].name = REXY;
     monsters[2].dir = LEFT;
@@ -299,6 +305,10 @@ void level1(void)
     monsters[2].pos[1] = 88;
     monsters[2].limits[0] = 8;   // xmin limit
     monsters[2].limits[1] = 216; // xmax limit
+    monsters[2].w = REXYWIDTH;
+    monsters[2].h = REXYHEIGHT;
+    getBBox(monsters[2].pos[0], monsters[2].pos[1], monsters[2].w, monsters[2].h, &monsters[2].bbox);
+
 
     monsters[3].name = REXY;
     monsters[3].dir = RIGHT;
@@ -308,6 +318,9 @@ void level1(void)
     monsters[3].pos[1] = 16;
     monsters[3].limits[0] = 160; // xmin limit
     monsters[3].limits[1] = 200; // xmax limit
+    monsters[3].w = REXYWIDTH;
+    monsters[3].h = REXYHEIGHT;
+    getBBox(monsters[3].pos[0], monsters[3].pos[1], monsters[3].w, monsters[3].h, &monsters[3].bbox);
 
     // powerup array
     getPowerups(powerups);
@@ -319,7 +332,10 @@ void level1(void)
     player.spedUp = 0; // affected by speed powerup (1: sped up; 0: normal speed)
     player.pos[0] = 8;
     player.pos[1] = 8;
+    player.w = PLAYERWIDTH;
+    player.h = PLAYERHEIGHT;
     player.canFly = 0; // affected by fly powerup (1: can fly; 0: cannot)
+    getBBox(player.pos[0], player.pos[1], player.w, player.h, &player.bbox);
 
     // exit door
     exit.x = 30; // position in tile
@@ -350,6 +366,9 @@ void level2(void)
     monsters[0].pos[1] = 88;
     monsters[0].limits[0] = 8;   // xmin limit
     monsters[0].limits[1] = 216; // xmax limit
+    monsters[0].w = REXYWIDTH;
+    monsters[0].h = REXYHEIGHT;
+    getBBox(monsters[0].pos[0], monsters[0].pos[1], monsters[0].w, monsters[0].h, &monsters[0].bbox);
 
     // powerup array
     getPowerups(powerups);
@@ -361,7 +380,10 @@ void level2(void)
     player.spedUp = 0; // affected by speed powerup (1: sped up; 0: normal speed)
     player.pos[0] = 8;
     player.pos[1] = 8;
+    player.w = PLAYERWIDTH;
+    player.h = PLAYERHEIGHT;
     player.canFly = 0; // affected by fly powerup (1: can fly; 0: cannot)
+    getBBox(player.pos[0], player.pos[1], player.w, player.h, &player.bbox);
 
     // exit door
     exit.x = 30; // position in tile

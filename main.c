@@ -75,6 +75,8 @@ void movePlayer(enum Direction dir)
     {
         player.pos[0] += player.speed;
     }
+    // updated bbox
+    getBBox(player.pos[0], player.pos[1], player.w, player.h, &player.bbox);
 }
 
 void moveRexy(struct Monster *rexy)
@@ -142,21 +144,41 @@ void moveMonster(struct Monster *monster)
     default:
         break;
     }
+    // updated bbox
+    getBBox(monster->pos[0], monster->pos[1], monster->w, monster->h, &monster->bbox);
 }
 
 // COLLISION ROUTINES
 
+// get bounding-box from top-left sprite xy position and width and height
+void getBBox(unsigned char x, unsigned char y,
+             unsigned char w, unsigned char h,
+             struct BoundingBox *bbox)
+{
+    // get bbox
+    unsigned char xmin = x;
+    unsigned char xmax = xmin + w - 1;
+    unsigned char ymin = y;
+    unsigned char ymax = ymin + h - 1;
+
+    bbox->xmin = xmin;
+    bbox->xmax = xmax;
+    bbox->ymin = ymin;
+    bbox->ymax = ymax;
+}
+
 // Check if player hits a monster. Return 1 in case it does, 0 otherwise
-// use tiles instead of pixels
 unsigned char monsterCollision(void)
 {
     unsigned char i;
-    unsigned char playerTileX = player.pos[0] / 8;
-    unsigned char playerTileY = player.pos[1] / 8;
 
     for (i = 0; i < activeMonsters; i++)
     {
-        if ((playerTileX == monsters[i].pos[0] / 8) & (playerTileY == monsters[i].pos[1] / 8))
+        // both horizontal and vertical overlap need to happen for player and monster to collide
+        if ((player.bbox.xmax >= monsters[i].bbox.xmin) &&   // horizontal overlap
+            (player.bbox.xmin <= monsters[i].bbox.xmax) &&   // horizontal overlap
+            (player.bbox.ymax >= monsters[i].bbox.ymin) &&   // vertical overlap
+            (player.bbox.ymin <= monsters[i].bbox.ymax))     // vertical overlap
         {
             return 1; // collision!
         }
