@@ -27,6 +27,7 @@
 #define MAX_POWERUPS 10         // allowed maximum number of powerups per level
 
 unsigned int ks;
+unsigned char pause;           // 0: game is playing; 1: game is paused
 unsigned char end;             // 0: exit was reached; 1: exit was not reached yet
 unsigned char step;            // 0 to 7 (counts how many steps the player has taken within a tile)
 unsigned int powerupCounter;   // TODO: for simplicity, we keep only one common counter for all powerups.

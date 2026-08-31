@@ -6,6 +6,7 @@
 #include "level.c"
 
 unsigned char frameCounter = 0; // keep track of frame number (e.g. for animation)
+unsigned char pause = 0;        // starts pause state to false
 
 // DRAW ROUTINES
 void drawPlayer(void)

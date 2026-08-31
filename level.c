@@ -164,6 +164,22 @@ void levelLoop(void (*initLevel)(void))
     enum LevelObject collisionCode = UNKNOWN;
     while (!end)
     {
+        // if pause was pressed
+        if (SMS_queryPauseRequested())
+        {
+            SMS_resetPauseRequest(); // acknowledge pause press
+            pause = !pause;          // change game state to pause
+
+            if (pause)
+            {
+                PSGSilenceChannels(); // silence all PSG channels
+            }
+            else
+            {
+                PSGRestoreVolumes(); // restore PSG channels volume
+            }
+        }
+
         frameCounter++;
         // tile animation for powerups
         for (unsigned char i = 0; i < activePowerUps; i++)
@@ -180,6 +196,13 @@ void levelLoop(void (*initLevel)(void))
             exit.animation = !exit.animation; // 0 -> 1 -> 0 -> ...
             SMS_setTileatXY(exit.x, exit.y, exit.tiles[exit.animation]);
         }
+        
+        if (pause)
+        {
+            SMS_waitForVBlank();
+            continue;
+        }
+
         ks = SMS_getKeysStatus();
         // if player is NOT moving
         if (player.isMoving == 0)
@@ -308,7 +331,6 @@ void level1(void)
     monsters[2].w = REXYWIDTH;
     monsters[2].h = REXYHEIGHT;
     getBBox(monsters[2].pos[0], monsters[2].pos[1], monsters[2].w, monsters[2].h, &monsters[2].bbox);
-
 
     monsters[3].name = REXY;
     monsters[3].dir = RIGHT;
