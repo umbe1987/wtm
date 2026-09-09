@@ -57,6 +57,25 @@ void drawMonster(struct Monster *monster)
     }
 }
 
+void drawTextSprites(unsigned char x, unsigned char y, const char *str) {
+    unsigned char i = 0;
+    // '\0' is the null terminator
+    while (str[i] != '\0') {
+        // Calculate VRAM tile index based on ASCII offset
+        unsigned int tileID = FONT_TILES + (str[i] - ' ');
+
+        // Draw character sprite (shifting X by 8 pixels per letter)
+        SMS_addSprite(x + (i * 8), y, tileID);
+        i++;
+    }
+}
+
+void drawHUD(void)
+{
+    SMS_addSprite(0, SCREEN_HEIGHT - PLAYERHEIGHT, PLAYER_TILES);
+    drawTextSprites(8, SCREEN_HEIGHT - PLAYERHEIGHT, "666");
+}
+
 // MOVE ROUTINES
 void movePlayer(enum Direction dir)
 {
@@ -239,6 +258,7 @@ enum Direction getDirection(void)
 void loadAssets(void)
 {
     SMS_loadTiles(sprites__tiles__bin, SPRITE_TILES, sprites__tiles__bin_size);
+    SMS_loadTiles(font__tiles__bin, FONT_TILES, font__tiles__bin_size);
     SMS_loadSpritePalette(sprites__palette__bin);
 }
 

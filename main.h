@@ -1,6 +1,8 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#define SCREEN_HEIGHT 192
+#define SCREEN_WIDTH 256
 #define BG_TILES 0
 #define SPRITE_TILES 256
 #define LEVEL_SIZE 768 // in tiles
@@ -10,6 +12,7 @@
 #define REXY_TILES_LEFT (SPRITE_TILES + 4)
 #define REXY_TILES_RIGHT (SPRITE_TILES + 6)
 #define POCCO_TILES (SPRITE_TILES + 8)
+#define FONT_TILES (SPRITE_TILES + 12) // we start counting from the last entry of the sprite tiles
 #define MINPLAYERY 8
 #define MAXPLAYERY (192 - 16)
 #define MINPLAYERX 8
@@ -134,6 +137,7 @@ void drawPlayer(void);
 void drawRexy(struct Monster *rexy);
 void drawPocco(struct Monster *pocco);
 void drawMonster(struct Monster *monster);
+void drawHUD(void);
 
 // MOVE ROUTINES
 void movePlayer(enum Direction dir);
