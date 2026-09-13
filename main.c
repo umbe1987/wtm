@@ -6,7 +6,6 @@
 #include "level.c"
 
 unsigned char frameCounter = 0; // keep track of frame number (e.g. for animation)
-unsigned char pause = 0;        // starts pause state to false
 
 // DRAW ROUTINES
 void drawPlayer(void)
@@ -57,7 +56,7 @@ void drawMonster(struct Monster *monster)
     }
 }
 
-void drawTextSprites(unsigned char x, unsigned char y, const char *str) {
+void drawTextSprites(unsigned int x, unsigned int y, const char *str) {
     unsigned char i = 0;
     // '\0' is the null terminator
     while (str[i] != '\0') {
@@ -74,6 +73,12 @@ void drawHUD(void)
 {
     SMS_addSprite(0, SCREEN_HEIGHT - PLAYERHEIGHT, PLAYER_TILES);
     drawTextSprites(8, SCREEN_HEIGHT - PLAYERHEIGHT, "666");
+}
+
+void drawPause(void)
+{
+    // draw pause mid-screen
+    drawTextSprites((SCREEN_WIDTH / 2) - 24, (SCREEN_HEIGHT / 2) - 8, "PAUSE");
 }
 
 // MOVE ROUTINES

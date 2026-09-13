@@ -159,6 +159,8 @@ void managePowerup(enum LevelObject code)
 
 void levelLoop(void (*initLevel)(void))
 {
+    pause = 0;                  // always init in a non-paused state
+    SMS_resetPauseRequest();
     PSGPlay(wtm_psg);
     initLevel();
     enum LevelObject collisionCode = UNKNOWN;
@@ -172,11 +174,12 @@ void levelLoop(void (*initLevel)(void))
 
             if (pause)
             {
-                PSGSilenceChannels(); // silence all PSG channels
+                PSGSFXPlay(pause_psg, SFX_CHANNEL2);
+                PSGSetMusicVolumeAttenuation(15); // silence all PSG channels
             }
             else
             {
-                PSGRestoreVolumes(); // restore PSG channels volume
+                PSGSetMusicVolumeAttenuation(0); // restore PSG channels volume
             }
         }
 
@@ -199,7 +202,11 @@ void levelLoop(void (*initLevel)(void))
         
         if (pause)
         {
+            SMS_initSprites();
+            drawPause();
             SMS_waitForVBlank();
+            SMS_copySpritestoSAT();
+            PSGSFXFrame();
             continue;
         }
 
@@ -276,6 +283,7 @@ void levelLoop(void (*initLevel)(void))
         SMS_waitForVBlank();
         SMS_copySpritestoSAT();
         PSGFrame();
+        PSGSFXFrame();
         if (!player.canFly && monsterCollision())
         {
             deathLoop();
