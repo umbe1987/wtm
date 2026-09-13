@@ -75,6 +75,11 @@ void drawHUD(void)
     drawTextSprites(8, SCREEN_HEIGHT - PLAYERHEIGHT, "666");
 }
 
+void drawScore(void)
+{
+    drawTextSprites(SCREEN_WIDTH - (PLAYERWIDTH * 4), SCREEN_HEIGHT - PLAYERHEIGHT, "0000");
+}
+
 void drawPause(void)
 {
     // draw pause mid-screen

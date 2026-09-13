@@ -138,6 +138,7 @@ void drawRexy(struct Monster *rexy);
 void drawPocco(struct Monster *pocco);
 void drawMonster(struct Monster *monster);
 void drawHUD(void);
+void drawScore(void);
 void drawPause(void);
 
 // MOVE ROUTINES

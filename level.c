@@ -273,6 +273,7 @@ void levelLoop(void (*initLevel)(void))
             resetPowerup();
         }
         drawHUD();
+        drawScore();
         drawPlayer();
         // draw and move the monsters
         for (unsigned char i = 0; i < activeMonsters; i++)
