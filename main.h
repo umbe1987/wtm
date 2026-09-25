@@ -28,6 +28,7 @@
 #define TILE_ANIMATION_FRAME 16 // number of frames before changing tile for animation
 #define MAX_MONSTERS 10         // allowed maximum number of monsters per level
 #define MAX_POWERUPS 10         // allowed maximum number of powerups per level
+#define MAX_LIVES 99            // maximum number of lives
 
 unsigned int ks;
 unsigned char pause;           // 0: game is playing; 1: game is paused
@@ -36,6 +37,9 @@ unsigned char step;            // 0 to 7 (counts how many steps the player has t
 unsigned int powerupCounter;   // TODO: for simplicity, we keep only one common counter for all powerups.
                                // In the future, each powerup will have its own counter
 unsigned char frameCounter;    // keep track of frame number (e.g. for animation)
+unsigned char lives;           // number of lives
+unsigned int score;            // player score
+unsigned char strBuffer[5];    // string buffer used to convert numbers to sprite characters (4 digits + '\0')
 enum Direction
 {
     UNKNOWN,
@@ -123,6 +127,7 @@ struct Player
     unsigned char spedUp;    // affected by speed powerup (1: sped up; 0: normal speed)
     unsigned char canFly;    // affected by fly powerup (1: can fly; 0: cannot)
     struct BoundingBox bbox; // bounding-box for collision detection
+    unsigned char lives;     // number of lives
 };
 struct Player player;
 
@@ -138,7 +143,6 @@ void drawRexy(struct Monster *rexy);
 void drawPocco(struct Monster *pocco);
 void drawMonster(struct Monster *monster);
 void drawHUD(void);
-void drawScore(void);
 void drawPause(void);
 
 // MOVE ROUTINES

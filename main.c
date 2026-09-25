@@ -5,7 +5,27 @@
 #include "main.h"
 #include "level.c"
 
-unsigned char frameCounter = 0; // keep track of frame number (e.g. for animation)
+unsigned char frameCounter = 0;    // keep track of frame number (e.g. for animation)
+unsigned char lives = 99;           // number of lives
+unsigned int score = 0;            // player score
+
+
+// MISC
+void loadAssets(void)
+{
+    SMS_loadTiles(sprites__tiles__bin, SPRITE_TILES, sprites__tiles__bin_size);
+    SMS_loadTiles(font__tiles__bin, FONT_TILES, font__tiles__bin_size);
+    SMS_loadSpritePalette(sprites__palette__bin);
+}
+
+void num2str(unsigned int x) {
+    strBuffer[4] = '\0'; // null terminator
+    strBuffer[3] = '0' + (x % 10);  // ones
+    // replace leading zeroes with spaces
+    strBuffer[2] = (x >= 10)   ? ('0' + ((x / 10) % 10))   : ' '; // ones
+    strBuffer[1] = (x >= 100)  ? ('0' + ((x / 100) % 10))  : ' '; // hundreds
+    strBuffer[0] = (x >= 1000) ? ('0' + ((x / 1000) % 10)) : ' '; // thousands
+}
 
 // DRAW ROUTINES
 void drawPlayer(void)
@@ -60,11 +80,14 @@ void drawTextSprites(unsigned int x, unsigned int y, const char *str) {
     unsigned char i = 0;
     // '\0' is the null terminator
     while (str[i] != '\0') {
-        // Calculate VRAM tile index based on ASCII offset
-        unsigned int tileID = FONT_TILES + (str[i] - ' ');
+        // avoid drawing spaces to save sprite budget
+        if (str[i] != ' ') {
+            // Calculate VRAM tile index based on ASCII offset
+            unsigned int tileID = FONT_TILES + (str[i] - ' ');
 
-        // Draw character sprite (shifting X by 8 pixels per letter)
-        SMS_addSprite(x + (i * 8), y, tileID);
+            // Draw character sprite (shifting X by 8 pixels per letter)
+            SMS_addSprite(x + (i * 8), y, tileID);
+        }
         i++;
     }
 }
@@ -72,12 +95,14 @@ void drawTextSprites(unsigned int x, unsigned int y, const char *str) {
 void drawHUD(void)
 {
     SMS_addSprite(0, SCREEN_HEIGHT - PLAYERHEIGHT, PLAYER_TILES);
-    drawTextSprites(8, SCREEN_HEIGHT - PLAYERHEIGHT, "666");
-}
-
-void drawScore(void)
-{
-    drawTextSprites(SCREEN_WIDTH - (PLAYERWIDTH * 4), SCREEN_HEIGHT - PLAYERHEIGHT, "0000");
+    // draw score
+    num2str(score);
+    drawTextSprites(SCREEN_WIDTH - (PLAYERWIDTH * 4), SCREEN_HEIGHT - PLAYERHEIGHT, strBuffer);
+    // draw lives
+    num2str(lives);
+    // string buffer is 4 characters long. max lives is 99. String is left-aligned (e.g. '   1').
+    // we draw lives starting from negative coords so that the visible digits are close to the smile icon :)
+    drawTextSprites((lives < 10) ? -16 : -8, SCREEN_HEIGHT - PLAYERHEIGHT, strBuffer);
 }
 
 void drawPause(void)
@@ -262,14 +287,6 @@ enum Direction getDirection(void)
         return RIGHT;
     }
     return UNKNOWN;
-}
-
-// MISC
-void loadAssets(void)
-{
-    SMS_loadTiles(sprites__tiles__bin, SPRITE_TILES, sprites__tiles__bin_size);
-    SMS_loadTiles(font__tiles__bin, FONT_TILES, font__tiles__bin_size);
-    SMS_loadSpritePalette(sprites__palette__bin);
 }
 
 // MAIN GAME LOOP
